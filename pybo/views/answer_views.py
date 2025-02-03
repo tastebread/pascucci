@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render,get_object_or_404,redirect, resolve_url
-
+from django.http import HttpResponseNotAllowed
+from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
 
-from ..forms import AnswerForm
-from ..models import Question, Answer
+from pybo.forms import AnswerForm
+from pybo.models import Question, Answer
+
 
 @login_required(login_url='common:login')
 def answer_create(request, question_id):
@@ -21,9 +22,10 @@ def answer_create(request, question_id):
             return redirect('{}#answer_{}'.format(
                 resolve_url('pybo:detail', question_id=question.id), answer.id))
     else:
-        form = AnswerForm()
+        return HttpResponseNotAllowed('Only POST is possible.')
     context = {'question': question, 'form': form}
     return render(request, 'pybo/question_detail.html', context)
+
 
 @login_required(login_url='common:login')
 def answer_modify(request, answer_id):
@@ -44,6 +46,7 @@ def answer_modify(request, answer_id):
     context = {'answer': answer, 'form': form}
     return render(request, 'pybo/answer_form.html', context)
 
+
 @login_required(login_url='common:login')
 def answer_delete(request, answer_id):
     answer = get_object_or_404(Answer, pk=answer_id)
@@ -51,8 +54,8 @@ def answer_delete(request, answer_id):
         messages.error(request, '삭제권한이 없습니다')
     else:
         answer.delete()
-    return redirect('{}#answer_{}'.format(
-        resolve_url('pybo:detail', question_id=answer.question.id), answer.id))
+    return redirect('pybo:detail', question_id=answer.question.id)
+
 
 @login_required(login_url='common:login')
 def answer_vote(request, answer_id):
@@ -61,4 +64,5 @@ def answer_vote(request, answer_id):
         messages.error(request, '본인이 작성한 글은 추천할수 없습니다')
     else:
         answer.voter.add(request.user)
-    return redirect('pybo:detail', question_id=answer.question.id)
+    return redirect('{}#answer_{}'.format(
+                resolve_url('pybo:detail', question_id=answer.question.id), answer.id))

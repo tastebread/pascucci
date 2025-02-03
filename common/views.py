@@ -1,14 +1,7 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from common.forms import UserForm
 
-def logout_view(request):
-    logout(request)
-    return redirect('index')
 
 def signup(request):
     if request.method == "POST":

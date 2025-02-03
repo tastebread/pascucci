@@ -1,6 +1,8 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
-from ..models import Question
+
+from pybo.models import Question
+
 
 def index(request):
     page = request.GET.get('page', '1')  # 페이지
